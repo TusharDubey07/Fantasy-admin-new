@@ -17,17 +17,13 @@ const productData: Product[] = [
     image: ProductTwo,
     name: 'Macbook Pro M1',
     category: 'Electronics',
-    price: 546,
-    sold: 12,
-    profit: 125,
+    description:"women"
   },
   {
     image: ProductThree,
     name: 'Dell Inspiron 15',
     category: 'Electronics',
-    price: 443,
-    sold: 64,
-    profit: 247,
+    description:"women"
   },
   {
     image: ProductFour,
