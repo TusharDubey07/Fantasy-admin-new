@@ -146,7 +146,7 @@ function App() {
           }
         />
       </Routes>
-      <ToastContainer position='top-right' />
+
     </DefaultLayout>
   );
 }

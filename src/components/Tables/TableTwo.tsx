@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from 'react';
 import { Product } from '../../types/product';
-import { ToastContainer, toast } from 'react-toastify';
+
 
 
 
@@ -31,7 +31,7 @@ const TableTwo = () => {
       });
 
       if (response.ok) {
-        toast.success("Product Deleted Sucessfully");
+        
         fetchProducts();
         
       } else {
