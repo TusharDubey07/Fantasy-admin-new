@@ -44,15 +44,8 @@ function App() {
             </>
           }
         />
-        <Route
-          path="/calendar"
-          element={
-            <>
-              <PageTitle title="Calendar | TailAdmin - Tailwind CSS Admin Dashboard Template" />
-              <Calendar />
-            </>
-          }
-        />
+        
+      
         <Route
           path="/profile"
           element={
