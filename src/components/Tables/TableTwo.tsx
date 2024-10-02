@@ -31,7 +31,7 @@ const TableTwo = () => {
       });
 
       if (response.ok) {
-        toast.success("Product Deleted Sucessfully");
+       
         fetchProducts();
         
       } else {
