@@ -16,6 +16,7 @@ import Tables from './pages/Tables';
 import Alerts from './pages/UiElements/Alerts';
 import Buttons from './pages/UiElements/Buttons';
 import DefaultLayout from './layout/DefaultLayout';
+import { ToastContainer } from 'react-toastify';
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -43,15 +44,8 @@ function App() {
             </>
           }
         />
-        <Route
-          path="/calendar"
-          element={
-            <>
-              <PageTitle title="Calendar | TailAdmin - Tailwind CSS Admin Dashboard Template" />
-              <Calendar />
-            </>
-          }
-        />
+        
+      
         <Route
           path="/profile"
           element={
@@ -97,6 +91,8 @@ function App() {
             </>
           }
         />
+
+
         <Route
           path="/chart"
           element={
@@ -143,6 +139,7 @@ function App() {
           }
         />
       </Routes>
+      
     </DefaultLayout>
   );
 }

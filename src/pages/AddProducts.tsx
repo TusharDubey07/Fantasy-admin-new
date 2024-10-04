@@ -353,6 +353,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Header from './Header'; // Assuming you have a header component
+import { HiPlus } from 'react-icons/hi';
 import FormComponent from './FormComponent';
 
 // Category and Subcategory types
