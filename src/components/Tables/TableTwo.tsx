@@ -1,39 +1,34 @@
-
 import { useEffect, useState } from 'react';
 import { Product } from '../../types/product';
-import { ToastContainer, toast } from 'react-toastify';
-
-
-
-
-
-
-
 
 const TableTwo = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [deleteProductId] = useState<number | null>(null);
+  const [deleteProductId, setDeleteProductId] = useState<number | null>(null); // Track product being deleted
   const [isDeleting, setIsDeleting] = useState(false);
-
   
-
-
   const placeholderImage = 'https://via.placeholder.com/150'; // Replace with a valid placeholder image URL
 
-
   const deleteProduct = async (id: any) => {
+    const isConfirmed = window.confirm("Are you sure you want to delete this product?");
+    
+    if (!isConfirmed) {
+      // If the user cancels, simply return and do nothing
+      return;
+    }
+  
     setIsDeleting(true);
+    setDeleteProductId(id); // Track the ID of the product being deleted
+    
     try {
       const response = await fetch(`https://fantasy-collection-backend.onrender.com/api/products/${id}`, {
         method: 'DELETE',
       });
-
+  
       if (response.ok) {
-       
+        // Product successfully deleted, fetch updated product list
         fetchProducts();
-        
       } else {
         alert("Failed to delete the product. Please try again.");
       }
@@ -42,8 +37,10 @@ const TableTwo = () => {
       alert("Failed to delete the product. Please try again.");
     } finally {
       setIsDeleting(false);
+      setDeleteProductId(null); // Reset product ID after deletion process
     }
   };
+  
   const fetchProducts = async () => {
     try {
       const response = await fetch('https://fantasy.loandhundo.com/api/allproducts');
@@ -51,7 +48,6 @@ const TableTwo = () => {
         throw new Error('Failed to fetch products');
       }
       const data = await response.json();
-      // console.log(data)
       setProducts(data);
       setLoading(false);
     } catch (err: any) {
@@ -60,13 +56,9 @@ const TableTwo = () => {
     }
   };
 
-
-  // Fetch products from the API
   useEffect(() => {
     fetchProducts();
-  }, [products]);
-
-
+  }, []); // Remove products dependency to avoid infinite loop
 
   if (loading) {
     return <p>Loading...</p>;
@@ -78,7 +70,6 @@ const TableTwo = () => {
 
   return (
     <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-
       <div className="py-6 px-4 md:px-6 xl:px-7.5">
         <h4 className="text-xl font-semibold text-black dark:text-white">
           Recently Added Products
@@ -126,20 +117,26 @@ const TableTwo = () => {
               {product.description}
             </p>
           </div>
-          
-          <div className="col-span-1 flex items-center">
+
+          {/* Edit button */}
+          <div className="col-span-1 flex flex-col sm:flex-row sm:justify-between items-center w-full">
             <button
-              style={{ color: 'red', marginLeft: 120 }}
-              onClick={() => {deleteProduct(product._id)}}
-              disabled={isDeleting && deleteProductId === product.id}
+              className="mt-4 sm:mt-0 sm:ml-20 text-blue-500 hover:text-blue-700"
+              style={{ cursor: 'pointer' }}
             >
-              {isDeleting && deleteProductId === product.id ? 'Deleting...' : 'Delete'}
+              Edit
+            </button>
+
+            {/* Delete button */}
+            <button
+              className="mt-4 sm:mt-0 sm:ml-10 text-red-500 hover:text-red-700"
+              onClick={() => { deleteProduct(product._id); }}
+              disabled={isDeleting && deleteProductId === product._id}
+              style={{ cursor: 'pointer' }}
+            >
+              {isDeleting && deleteProductId === product._id ? 'Deleting...' : 'Delete'}
             </button>
           </div>
-
-
-
-
         </div>
       ))}
     </div>
@@ -147,4 +144,3 @@ const TableTwo = () => {
 };
 
 export default TableTwo;
-
