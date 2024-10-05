@@ -17,6 +17,7 @@ import Alerts from './pages/UiElements/Alerts';
 import Buttons from './pages/UiElements/Buttons';
 import DefaultLayout from './layout/DefaultLayout';
 import { ToastContainer } from 'react-toastify';
+import ProductEdit from './pages/ProductEdit';
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -81,6 +82,15 @@ function App() {
               <Tables />
             </>
           }
+        />
+        <Route
+        path="/edit-product/:id"
+        element={
+          <>
+            <PageTitle title="Edit Product | TailAdmin - Tailwind CSS Admin Dashboard Template" />
+            <ProductEdit />
+          </>
+        }
         />
         <Route
           path="/addProducts"

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Product } from '../../types/product';
+import { useNavigate } from 'react-router-dom';
 
 const TableTwo = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -10,6 +11,7 @@ const TableTwo = () => {
   
   const placeholderImage = 'https://via.placeholder.com/150'; // Replace with a valid placeholder image URL
 
+  const navigate = useNavigate()
   const deleteProduct = async (id: any) => {
     const isConfirmed = window.confirm("Are you sure you want to delete this product?");
     
@@ -43,7 +45,7 @@ const TableTwo = () => {
   
   const fetchProducts = async () => {
     try {
-      const response = await fetch('https://fantasy.loandhundo.com/api/allproducts');
+      const response = await fetch('https://fantasy.loandhundo.com/allproducts');
       if (!response.ok) {
         throw new Error('Failed to fetch products');
       }
@@ -120,12 +122,13 @@ const TableTwo = () => {
 
           {/* Edit button */}
           <div className="col-span-1 flex flex-col sm:flex-row sm:justify-between items-center w-full">
-            <button
-              className="mt-4 sm:mt-0 sm:ml-20 text-blue-500 hover:text-blue-700"
-              style={{ cursor: 'pointer' }}
-            >
-              Edit
-            </button>
+          <button
+  className="mt-4 sm:mt-0 sm:ml-20 text-blue-500 hover:text-blue-700"
+  style={{ cursor: 'pointer' }}
+  onClick={() => navigate(`/edit-product/${product._id}`)}
+>
+  Edit
+</button>
 
             {/* Delete button */}
             <button

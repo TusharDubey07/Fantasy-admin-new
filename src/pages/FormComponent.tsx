@@ -1,29 +1,67 @@
+
+
 // import React, { useState, useEffect } from 'react';
-// import { IoMdCloseCircle } from 'react-icons/io';
 
 // interface FormComponentProps {
-//   categoryId: string | null;
-//   subcategoryId: string | null;
 //   onClose: () => void;
 // }
 
-// const FormComponent: React.FC<FormComponentProps> = ({ categoryId, subcategoryId, onClose }) => {
+// interface Category {
+//   _id: string;
+//   name: string;
+// }
+
+// interface Subcategory {
+//   _id: string;
+//   name: string;
+// }
+
+// const FormComponent: React.FC<FormComponentProps> = ({ onClose }) => {
+//   const [categories, setCategories] = useState<Category[]>([]);
+//   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
 //   const [formData, setFormData] = useState({
 //     name: '',
 //     description: '',
 //     type: '',
 //     image: null as File | null,
-//     subcategoryId: subcategoryId || '',
+//     categoryId: '',
+//     subcategoryId: '',
 //   });
 
 //   useEffect(() => {
-//     if (subcategoryId) {
-//       setFormData((prevData) => ({
-//         ...prevData,
-//         subcategoryId: subcategoryId,
-//       }));
+//     // Fetch categories when the component loads
+//     fetchCategories();
+//   }, []);
+
+//   const fetchCategories = async () => {
+//     try {
+//       const response = await fetch('https://fantasy.loandhundo.com/api/categories');
+//       const data: Category[] = await response.json();
+//       setCategories(data);
+//     } catch (err: any) {
+//       console.error('Error fetching categories:', err);
 //     }
-//   }, [subcategoryId]);
+//   };
+
+//   const fetchSubcategories = async (categoryId: string) => {
+//     try {
+//       const response = await fetch(`https://fantasy.loandhundo.com/api/subcategories/${categoryId}`);
+//       const data: Subcategory[] = await response.json();
+//       setSubcategories(data);
+//     } catch (err: any) {
+//       console.error('Error fetching subcategories:', err);
+//     }
+//   };
+
+//   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+//     const selectedCategoryId = e.target.value;
+//     setFormData((prevData) => ({
+//       ...prevData,
+//       categoryId: selectedCategoryId,
+//       subcategoryId: '', // Reset subcategory when category changes
+//     }));
+//     fetchSubcategories(selectedCategoryId);
+//   };
 
 //   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
 //     const { name, value, type, files } = e.target as HTMLInputElement;
@@ -40,7 +78,9 @@
 //     formDataToSend.append('name', formData.name);
 //     formDataToSend.append('description', formData.description);
 //     formDataToSend.append('type', formData.type);
-//     formDataToSend.append('categoryID', formData.subcategoryId);
+//     formDataToSend.append('categoryID', formData.categoryId);
+//     formDataToSend.append('subcategoryID', formData.subcategoryId);
+
 //     if (formData.image) {
 //       formDataToSend.append('image', formData.image);
 //     }
@@ -55,15 +95,14 @@
 //         throw new Error('Failed to submit the form');
 //       }
 
-//       const result = await response.json();
-//       console.log('Form submitted successfully:', result);
-
+//       console.log('Form submitted successfully');
 //       setFormData({
 //         name: '',
 //         description: '',
 //         type: '',
 //         image: null,
-//         subcategoryId: subcategoryId || '',
+//         categoryId: '',
+//         subcategoryId: '',
 //       });
 
 //       window.location.reload();
@@ -73,70 +112,184 @@
 //   };
 
 //   return (
-//     <div style={{ position: 'fixed', inset: '0', overflowY: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
-//       <div style={{ backgroundColor: '#94a3b8', padding: '2rem', borderRadius: '0.5rem', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', position: 'relative' }}>
-//         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
-//           <h2 style={{ fontSize: '1.5rem', fontWeight: '600', color: 'white' }}>Add Product</h2>
-//           <button type="button" style={{ border: 'none', background: 'none' }} onClick={onClose}>
-//             <IoMdCloseCircle size={24} />
+//     <div className="mt-4">
+//       <form onSubmit={handleSubmit} encType="multipart/form-data" className="bg-white p-4 shadow-md rounded-md">
+//         {/* Name */}
+//         <div className="mb-5.5">
+//           <label className="mb-3 block text-sm font-medium">Name</label>
+//           <input
+//             type="text"
+//             name="name"
+//             value={formData.name}
+//             onChange={handleChange}
+//             required
+//             className="w-full rounded border border-stroke bg-gray py-3 px-4.5"
+//           />
+//         </div>
+
+//         {/* Description */}
+//         <div className="mb-5.5">
+//           <label className="mb-3 block text-sm font-medium">Description</label>
+//           <textarea
+//             name="description"
+//             value={formData.description}
+//             onChange={handleChange}
+//             required
+//             className="w-full rounded border border-stroke bg-gray py-3 px-4.5"
+//           />
+//         </div>
+
+//         {/* Type */}
+//         <div className="mb-5.5">
+//           <label className="mb-3 block text-sm font-medium">Type</label>
+//           <input
+//             type="text"
+//             name="type"
+//             value={formData.type}
+//             onChange={handleChange}
+//             required
+//             className="w-full rounded border border-stroke bg-gray py-3 px-4.5"
+//           />
+//         </div>
+
+//         {/* Image */}
+//         <div className="mb-5.5">
+//           <label className="mb-3 block text-sm font-medium">Image</label>
+//           <input
+//             type="file"
+//             name="image"
+//             onChange={handleChange}
+//             accept="image/*"
+//             className="w-full rounded border border-dashed border-primary bg-gray py-4 px-4"
+//           />
+//         </div>
+
+//         {/* Category Dropdown */}
+//         <div className="mb-5.5">
+//           <label className="mb-3 block text-sm font-medium">Category</label>
+//           <select
+//             name="categoryId"
+//             value={formData.categoryId}
+//             onChange={handleCategoryChange}
+//             required
+//             className="w-full rounded border border-stroke bg-gray py-3 px-4.5"
+//           >
+//             <option value="">Select a category</option>
+//             {categories.map((category) => (
+//               <option key={category._id} value={category._id}>
+//                 {category.name}
+//               </option>
+//             ))}
+//           </select>
+//         </div>
+
+//         {/* Subcategory Dropdown */}
+//         <div className="mb-5.5">
+//           <label className="mb-3 block text-sm font-medium">Subcategory</label>
+//           <select
+//             name="subcategoryId"
+//             value={formData.subcategoryId}
+//             onChange={handleChange}
+//             required
+//             className="w-full rounded border border-stroke bg-gray py-3 px-4.5"
+//           >
+//             <option value="">Select a subcategory</option>
+//             {subcategories.map((subcategory) => (
+//               <option key={subcategory._id} value={subcategory._id}>
+//                 {subcategory.name}
+//               </option>
+//             ))}
+//           </select>
+//         </div>
+
+//         {/* Buttons */}
+//         <div className="flex justify-end gap-4.5">
+//           <button
+//             className="flex justify-center rounded border border-stroke py-2 px-6 font-medium"
+//             type="button"
+//             onClick={onClose}
+//           >
+//             Cancel
+//           </button>
+//           <button
+//             className="flex justify-center rounded bg-primary py-2 px-6 font-medium text-white"
+//             type="submit"
+//           >
+//             Save
 //           </button>
 //         </div>
-//         <form onSubmit={handleSubmit} encType="multipart/form-data">
-//           <div style={{ marginBottom: '1.5rem' }}>
-//             <label style={{ color: 'white', marginBottom: '0.5rem', display: 'block' }}>Name</label>
-//             <input type="text" name="name" value={formData.name} onChange={handleChange} required style={{ padding: '0.5rem', width: '100%' }} />
-//           </div>
-//           <div style={{ marginBottom: '1.5rem' }}>
-//             <label style={{ color: 'white', marginBottom: '0.5rem', display: 'block' }}>Description</label>
-//             <textarea name="description" value={formData.description} onChange={handleChange} required style={{ padding: '0.5rem', width: '100%' }}></textarea>
-//           </div>
-//           <div style={{ marginBottom: '1.5rem' }}>
-//             <label style={{ color: 'white', marginBottom: '0.5rem', display: 'block' }}>Type</label>
-//             <input type="text" name="type" value={formData.type} onChange={handleChange} required style={{ padding: '0.5rem', width: '100%' }} />
-//           </div>
-//           <div style={{ marginBottom: '1.5rem' }}>
-//             <label style={{ color: 'white', marginBottom: '0.5rem', display: 'block' }}>Image</label>
-//             <input type="file" name="image" onChange={handleChange} accept="image/*" style={{ padding: '0.5rem', width: '100%' }} />
-//           </div>
-//           <div style={{ marginBottom: '1.5rem' }}>
-//             <label style={{ color: 'white', marginBottom: '0.5rem', display: 'block' }}>Subcategory</label>
-//             <input type="text" name="subcategoryId" value={formData.subcategoryId} readOnly style={{ padding: '0.5rem', width: '100%' }} />
-//           </div>
-//           <div>
-//             <button type="submit" style={{ backgroundColor: 'green', color: 'yellow', padding: '0.5rem 1rem', borderRadius: '0.25rem', cursor: 'pointer', border: 'none' }}>Submit</button>
-//           </div>
-//         </form>
-//       </div>
+//       </form>
 //     </div>
 //   );
 // };
 
 // export default FormComponent;
+
 import React, { useState, useEffect } from 'react';
 
 interface FormComponentProps {
-  categoryId: string | null;
-  subcategoryId: string | null;
   onClose: () => void;
 }
 
-const FormComponent: React.FC<FormComponentProps> = ({ categoryId, subcategoryId, onClose }) => {
+interface Category {
+  _id: string;
+  name: string;
+}
+
+interface Subcategory {
+  _id: string;
+  name: string;
+}
+
+const FormComponent: React.FC<FormComponentProps> = ({ onClose }) => {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     type: '',
     image: null as File | null,
-    subcategoryId: subcategoryId || '',
+    categoryId: '',
+    subcategoryId: '',
   });
 
+  const typeOptions = ['Ethnic', 'Western', 'Swimsuit', 'Nightwear'];
+
   useEffect(() => {
-    if (subcategoryId) {
-      setFormData((prevData) => ({
-        ...prevData,
-        subcategoryId: subcategoryId,
-      }));
+    // Fetch categories when the component loads
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('https://fantasy.loandhundo.com/api/categories');
+      const data: Category[] = await response.json();
+      setCategories(data);
+    } catch (err: any) {
+      console.error('Error fetching categories:', err);
     }
-  }, [subcategoryId]);
+  };
+
+  const fetchSubcategories = async (categoryId: string) => {
+    try {
+      const response = await fetch(`https://fantasy.loandhundo.com/api/subcategories/${categoryId}`);
+      const data: Subcategory[] = await response.json();
+      setSubcategories(data);
+    } catch (err: any) {
+      console.error('Error fetching subcategories:', err);
+    }
+  };
+
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedCategoryId = e.target.value;
+    setFormData((prevData) => ({
+      ...prevData,
+      categoryId: selectedCategoryId,
+      subcategoryId: '', // Reset subcategory when category changes
+      type: '', // Reset type when category changes
+    }));
+    fetchSubcategories(selectedCategoryId);
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type, files } = e.target as HTMLInputElement;
@@ -153,7 +306,9 @@ const FormComponent: React.FC<FormComponentProps> = ({ categoryId, subcategoryId
     formDataToSend.append('name', formData.name);
     formDataToSend.append('description', formData.description);
     formDataToSend.append('type', formData.type);
-    formDataToSend.append('categoryID', formData.subcategoryId);
+    formDataToSend.append('categoryId', formData.categoryId); // Fix categoryId
+    formDataToSend.append('subcategoryId', formData.subcategoryId); // Fix subcategoryId
+
     if (formData.image) {
       formDataToSend.append('image', formData.image);
     }
@@ -168,15 +323,14 @@ const FormComponent: React.FC<FormComponentProps> = ({ categoryId, subcategoryId
         throw new Error('Failed to submit the form');
       }
 
-      const result = await response.json();
-      console.log('Form submitted successfully:', result);
-
+      console.log('Form submitted successfully');
       setFormData({
         name: '',
         description: '',
         type: '',
         image: null,
-        subcategoryId: subcategoryId || '',
+        categoryId: '',
+        subcategoryId: '',
       });
 
       window.location.reload();
@@ -185,9 +339,14 @@ const FormComponent: React.FC<FormComponentProps> = ({ categoryId, subcategoryId
     }
   };
 
+  // Check if the category is "Kids" and subcategory is either "Boys" or "Girls"
+  const shouldShowTypeField = (formData.categoryId === '66ad1cf5fe59512b2d5c0f8f') && 
+    (formData.subcategoryId === '66ad1e222cfb54481672f179' || formData.subcategoryId === '66ad1e312cfb54481672f17e');
+
   return (
-    <div className="mt-4"> {/* Removed modal and fixed positioning */}
+    <div className="mt-4">
       <form onSubmit={handleSubmit} encType="multipart/form-data" className="bg-white p-4 shadow-md rounded-md">
+        {/* Name */}
         <div className="mb-5.5">
           <label className="mb-3 block text-sm font-medium">Name</label>
           <input
@@ -199,6 +358,8 @@ const FormComponent: React.FC<FormComponentProps> = ({ categoryId, subcategoryId
             className="w-full rounded border border-stroke bg-gray py-3 px-4.5"
           />
         </div>
+
+        {/* Description */}
         <div className="mb-5.5">
           <label className="mb-3 block text-sm font-medium">Description</label>
           <textarea
@@ -209,17 +370,29 @@ const FormComponent: React.FC<FormComponentProps> = ({ categoryId, subcategoryId
             className="w-full rounded border border-stroke bg-gray py-3 px-4.5"
           />
         </div>
-        <div className="mb-5.5">
-          <label className="mb-3 block text-sm font-medium">Type</label>
-          <input
-            type="text"
-            name="type"
-            value={formData.type}
-            onChange={handleChange}
-            required
-            className="w-full rounded border border-stroke bg-gray py-3 px-4.5"
-          />
-        </div>
+
+        {/* Show Type Dropdown only for Kids -> Boys/Girls */}
+        {shouldShowTypeField && (
+          <div className="mb-5.5">
+            <label className="mb-3 block text-sm font-medium">Type</label>
+            <select
+              name="type"
+              value={formData.type}
+              onChange={handleChange}
+              required
+              className="w-full rounded border border-stroke bg-gray py-3 px-4.5"
+            >
+              <option value="">Select a type</option>
+              {typeOptions.map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {/* Image */}
         <div className="mb-5.5">
           <label className="mb-3 block text-sm font-medium">Image</label>
           <input
@@ -230,16 +403,46 @@ const FormComponent: React.FC<FormComponentProps> = ({ categoryId, subcategoryId
             className="w-full rounded border border-dashed border-primary bg-gray py-4 px-4"
           />
         </div>
+
+        {/* Category Dropdown */}
+        <div className="mb-5.5">
+          <label className="mb-3 block text-sm font-medium">Category</label>
+          <select
+            name="categoryId"
+            value={formData.categoryId}
+            onChange={handleCategoryChange}
+            required
+            className="w-full rounded border border-stroke bg-gray py-3 px-4.5"
+          >
+            <option value="">Select a category</option>
+            {categories.map((category) => (
+              <option key={category._id} value={category._id}>
+                {category.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Subcategory Dropdown */}
         <div className="mb-5.5">
           <label className="mb-3 block text-sm font-medium">Subcategory</label>
-          <input
-            type="text"
+          <select
             name="subcategoryId"
             value={formData.subcategoryId}
-            readOnly
+            onChange={handleChange}
+            required
             className="w-full rounded border border-stroke bg-gray py-3 px-4.5"
-          />
+          >
+            <option value="">Select a subcategory</option>
+            {subcategories.map((subcategory) => (
+              <option key={subcategory._id} value={subcategory._id}>
+                {subcategory.name}
+              </option>
+            ))}
+          </select>
         </div>
+
+        {/* Buttons */}
         <div className="flex justify-end gap-4.5">
           <button
             className="flex justify-center rounded border border-stroke py-2 px-6 font-medium"
@@ -261,3 +464,4 @@ const FormComponent: React.FC<FormComponentProps> = ({ categoryId, subcategoryId
 };
 
 export default FormComponent;
+
