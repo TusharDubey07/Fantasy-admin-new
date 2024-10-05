@@ -18,6 +18,7 @@ import Buttons from './pages/UiElements/Buttons';
 import DefaultLayout from './layout/DefaultLayout';
 import { ToastContainer } from 'react-toastify';
 import ProductEdit from './pages/ProductEdit';
+import TableTwo from './components/Tables/TableTwo';
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -74,24 +75,11 @@ function App() {
             </>
           }
         />
-        <Route
-          path="/tables"
-          element={
-            <>
-              <PageTitle title="Tables | TailAdmin - Tailwind CSS Admin Dashboard Template" />
-              <Tables />
-            </>
-          }
-        />
-        <Route
-        path="/edit-product/:id"
-        element={
-          <>
-            <PageTitle title="Edit Product | TailAdmin - Tailwind CSS Admin Dashboard Template" />
-            <ProductEdit />
-          </>
-        }
-        />
+         <Route path="/products" element={<TableTwo />} />
+
+        
+     <Route path="/edit-product/:_id" element={<ProductEdit />} /> 
+
         <Route
           path="/addProducts"
           element={
