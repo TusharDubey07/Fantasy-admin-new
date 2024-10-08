@@ -1,10 +1,10 @@
 export type Product = {
-  [x: string]: ReactNode;
-  [x: string]: ReactNode;
-  image: string;
+  id: string;
   name: string;
-  category: string;
-  price: number;
-  sold: number;
-  profit: number;
+  description: string;
+  image: string;
+  mainCategory: string; // ID of the main category
+  category: string;     // ID of the category
+  subCategory: string;  // ID of the subcategory
+  // Add any other fields you need
 };

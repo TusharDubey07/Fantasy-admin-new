@@ -5,25 +5,20 @@ const ProductEdit: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Access product from location state
   const product = location.state?.product;
 
-  // Ensure the product is available
   if (!product) {
     console.error('Product data not found in location state.');
-    navigate('/products'); // Navigate away if the product isn't found
-    return null; // Prevent rendering if product data is missing
+    navigate('/products');
+    return null;
   }
-
-  console.log('Product received:', product); // Debugging line
-  console.log('Product ID:', product.id); // Debugging line
 
   const [formData, setFormData] = useState({
     name: product.name || '',
     description: product.description || '',
-    mainCategory: product.mainCategory || '',
-    category: product.category || '',
-    subcategory: product.subCategory || '',
+    mainCategory: location.state?.mainCategoryId || '', // Initialize with mainCategory ID
+    category: product.category?.id || '',               // Initialize with category ID
+    subcategory: product.subCategory?.id || '',         // Initialize with subcategory ID
     image: null as File | null,
   });
 
@@ -47,17 +42,14 @@ const ProductEdit: React.FC = () => {
     fetchMainCategories();
   }, []);
 
-  // Fetch categories based on selected main category
+  // Fetch categories based on selected main category ID
   useEffect(() => {
     const fetchCategories = async () => {
-      if (!formData.mainCategory) {
-        return; // Exit if main category is not set
-      }
+      if (!formData.mainCategory) return;
       try {
         const response = await fetch(`https://fantasy.loandhundo.com/category/${formData.mainCategory}`);
         const categoryData = await response.json();
         setCategories(categoryData);
-        setFormData({ ...formData, category: '', subcategory: '' }); // Reset category and subcategory
       } catch (err) {
         console.error('Error fetching categories:', err);
       }
@@ -66,19 +58,19 @@ const ProductEdit: React.FC = () => {
     fetchCategories();
   }, [formData.mainCategory]);
 
-  // Fetch subcategories based on selected category
+  // Fetch subcategories based on selected category ID
   useEffect(() => {
     const fetchSubcategories = async () => {
-      if (!formData.category) {
-        return; // Exit if category is not set
-      }
+      if (!formData.category) return;
       try {
         const response = await fetch(`https://fantasy.loandhundo.com/subcategory/${formData.category}`);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch subcategories: ${response.statusText}`);
-        }
         const subcategoryData = await response.json();
-        setSubcategories(subcategoryData);
+
+        if (Array.isArray(subcategoryData)) {
+          setSubcategories(subcategoryData);
+        } else {
+          console.error('Subcategories response is not an array:', subcategoryData);
+        }
       } catch (err) {
         console.error('Error fetching subcategories:', err);
       }
@@ -87,53 +79,64 @@ const ProductEdit: React.FC = () => {
     fetchSubcategories();
   }, [formData.category]);
 
+  // Handle form changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type, files } = e.target as HTMLInputElement;
-    setFormData({
-      ...formData,
+    setFormData(prevData => ({
+      ...prevData,
       [name]: type === 'file' ? (files ? files[0] : null) : value,
-    });
+    }));
+
+    // Reset dependent fields when changing main category or category
+    if (name === 'mainCategory') {
+      setFormData(prevData => ({
+        ...prevData,
+        category: '',
+        subcategory: '',
+      }));
+    } else if (name === 'category') {
+      setFormData(prevData => ({
+        ...prevData,
+        subcategory: '',
+      }));
+    }
   };
 
+  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const updatedProduct = new FormData();
-    updatedProduct.append('name', formData.name);
-    updatedProduct.append('description', formData.description);
-    updatedProduct.append('mainCategory', formData.mainCategory);
-    updatedProduct.append('category', formData.category);
-    updatedProduct.append('subcategory', formData.subcategory);
+    const formDataToSend = new FormData();
+    formDataToSend.append('name', formData.name);
+    formDataToSend.append('description', formData.description);
+    formDataToSend.append('mainCategoryId', formData.mainCategory);
+    formDataToSend.append('categoryId', formData.category);
+    formDataToSend.append('subCategoryId', formData.subcategory);
     if (formData.image) {
-      updatedProduct.append('image', formData.image);
+      formDataToSend.append('image', formData.image);
     }
-
-    if (!product.id) {
-      console.error('Product ID is undefined. Cannot update the product.');
-      alert('Product ID is not defined. Cannot update the product.');
-      return;
-    }
-
-    console.log('Updating product with ID:', product.id);
-    console.log('Form data:', Object.fromEntries(updatedProduct));
 
     try {
       const url = `https://fantasy.loandhundo.com/editproduct/${product.id}`;
-      console.log('Request URL:', url);
-
       const response = await fetch(url, {
-        method: 'POST', // Changed from PUT to POST
-        body: updatedProduct,
+        method: 'POST',
+        body: formDataToSend,
       });
 
-      console.log('Response status:', response.status);
-      console.log('Response headers:', response.headers);
-
       if (response.ok) {
-        const result = await response.json();
-        console.log('Update response:', result);
+        const updatedProduct = await response.json();
+        console.log('Updated product:', updatedProduct);
         alert('Product updated successfully!');
-        navigate('/products');
+        // Navigate back to the product list with updated product data
+        navigate('/products', { 
+          state: { 
+            updatedProduct: {
+              ...updatedProduct,
+              category: { id: updatedProduct.categoryId, name: getCategoryName(updatedProduct.categoryId) },
+              subCategory: { id: updatedProduct.subCategoryId, name: getSubCategoryName(updatedProduct.subCategoryId) }
+            } 
+          } 
+        });
       } else {
         const errorMsg = await response.text();
         console.error('Server response:', response.status, errorMsg);
@@ -141,8 +144,19 @@ const ProductEdit: React.FC = () => {
       }
     } catch (error) {
       console.error('Error updating product:', error);
-      alert('An error occurred while updating the product. Please check the console for more details.');
+      alert('An error occurred while updating the product.');
     }
+  };
+
+  // Helper functions to get category and subcategory names
+  const getCategoryName = (categoryId: string) => {
+    const category = categories.find(cat => cat._id === categoryId);
+    return category ? category.name : '';
+  };
+
+  const getSubCategoryName = (subCategoryId: string) => {
+    const subCategory = subcategories.find(subcat => subcat._id === subCategoryId);
+    return subCategory ? subCategory.name : '';
   };
 
   return (
@@ -239,9 +253,9 @@ const ProductEdit: React.FC = () => {
         <div className="text-center">
           <button
             type="submit"
-            className="inline-flex justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+            className="inline-flex justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
-            Save Changes
+            Update Product
           </button>
         </div>
       </form>
