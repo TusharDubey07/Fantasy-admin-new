@@ -146,32 +146,12 @@ import React, { useState } from 'react';
 import FormComponent from './FormComponent';
 
 const AddProduct: React.FC = () => {
-  const [showForm, setShowForm] = useState<boolean>(false);
-
-  const handleAddProductClick = () => {
-    setShowForm(true); // Show the form when "Add Product" button is clicked
-  };
-
   return (
-    <div>
-      <main className="flex-1 p-4">
-        <div className="bg-white shadow-lg rounded-lg p-4">
-          <button
-            onClick={handleAddProductClick}
-            className="bg-green-500 text-white py-2 px-4 rounded"
-          >
-            Add Product
-          </button>
-
-          {/* Render the form when showForm is true */}
-          {showForm && (
-            <div style={{ width: '100%', marginTop: '20px' }}>
-              <FormComponent onClose={() => setShowForm(false)} />
-            </div>
-          )}
-        </div>
-      </main>
-    </div>
+    <>
+      
+        <FormComponent/>
+  
+    </>
   );
 };
 
