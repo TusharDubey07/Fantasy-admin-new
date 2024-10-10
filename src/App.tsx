@@ -19,6 +19,7 @@ import DefaultLayout from './layout/DefaultLayout';
 import { ToastContainer } from 'react-toastify';
 import ProductEdit from './pages/ProductEdit';
 import TableTwo from './components/Tables/TableTwo';
+import AddBanners from './pages/AddBanners';
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -86,6 +87,16 @@ function App() {
             <>
               <PageTitle title="AddProducts | TailAdmin - Tailwind CSS Admin Dashboard Template" />
               <AddProducts />
+            </>
+          }
+        />
+
+        <Route
+          path="/addBanners"
+          element={
+            <>
+              <PageTitle title="AddBanners | TailAdmin - Tailwind CSS Admin Dashboard Template" />
+              <AddBanners />
             </>
           }
         />
