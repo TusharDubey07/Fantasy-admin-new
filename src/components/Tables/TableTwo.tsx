@@ -30,7 +30,7 @@ const TableTwo = () => {
     setDeleteProductId(id);
     
     try {
-      const response = await fetch(`https://fantasy-collection-backend.onrender.com/api/products/${id}`, {
+      const response = await fetch(`https://fantasy.loandhundo.com/product/${id}`, {
         method: 'DELETE',
       });
 
