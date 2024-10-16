@@ -26,6 +26,8 @@ const ProductEdit: React.FC = () => {
   const [mainCategories, setMainCategories] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [subcategories, setSubcategories] = useState<any[]>([]);
+  const [isSubCategoryModalOpen, setIsSubCategoryModalOpen] = useState(false);
+  const [newSubCategoryName, setNewSubCategoryName] = useState('');
 
   // Fetch main categories
   useEffect(() => {
@@ -99,6 +101,44 @@ const ProductEdit: React.FC = () => {
         ...prevData,
         subcategory: '',
       }));
+    }
+  };
+
+  const handleSubcategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    if (value === 'add_new') {
+      setIsSubCategoryModalOpen(true);
+    } else {
+      setFormData(prevData => ({
+        ...prevData,
+        subcategory: value,
+      }));
+    }
+  };
+
+  const addNewSubCategory = async () => {
+    if (newSubCategoryName.trim() && formData.category) {
+      try {
+        const response = await fetch('https://fantasy.loandhundo.com/subcategory', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: newSubCategoryName, categoryId: formData.category })
+        });
+        if (!response.ok) {
+          throw new Error('Failed to add new subcategory');
+        }
+        const newSubCategory = await response.json();
+        setSubcategories([...subcategories, newSubCategory]);
+        setFormData(prevData => ({
+          ...prevData,
+          subcategory: newSubCategory._id,
+        }));
+        setNewSubCategoryName('');
+        setIsSubCategoryModalOpen(false);
+      } catch (error) {
+        console.error('Error adding new subcategory:', error);
+        alert('Failed to add new subcategory');
+      }
     }
   };
 
@@ -225,13 +265,14 @@ const ProductEdit: React.FC = () => {
           <select
             name="subcategory"
             value={formData.subcategory}
-            onChange={handleChange}
+            onChange={handleSubcategoryChange}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
           >
             <option value="">Select Subcategory</option>
             {subcategories.map((subcat) => (
               <option key={subcat._id} value={subcat._id}>{subcat.name}</option>
             ))}
+            <option value="add_new">+ Add New Subcategory</option>
           </select>
         </div>
 
@@ -259,6 +300,40 @@ const ProductEdit: React.FC = () => {
           </button>
         </div>
       </form>
+
+      {/* Inline Modal for Adding New Subcategory */}
+      {isSubCategoryModalOpen && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full" id="my-modal">
+          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div className="mt-3 text-center">
+              <h3 className="text-lg leading-6 font-medium text-gray-900">Add New Subcategory</h3>
+              <div className="mt-2 px-7 py-3">
+                <input
+                  type="text"
+                  value={newSubCategoryName}
+                  onChange={(e) => setNewSubCategoryName(e.target.value)}
+                  className="w-full px-3 py-2 border rounded-md"
+                  placeholder="New Subcategory Name"
+                />
+              </div>
+              <div className="items-center px-4 py-3">
+                <button
+                  onClick={addNewSubCategory}
+                  className="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                >
+                  Add Subcategory
+                </button>
+                <button
+                  onClick={() => setIsSubCategoryModalOpen(false)}
+                  className="mt-3 px-4 py-2 bg-gray-300 text-black text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
